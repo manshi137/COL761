@@ -42,7 +42,7 @@ struct fptree
     {
         return root->child.empty() || single_p(fptree.root);
     }
-    void init(Transactions &transactions, int support, std::unordered_map<int, int> freq)
+    void init(Transactions &transactions, int support, std::unordered_map<int, int> &freq)
     {
         for (std::vector<int> &trs : transactions)
         {
@@ -175,7 +175,7 @@ struct fptree
         return cond_fpt;
     }
 
-    std::vector<std::vector<int>> pattern_mining(fptree FPT, int support)
+    std::vector<std::vector<int>> pattern_mining(fptree FPT, int support, std::unordered_map<int, int> &freq)
     {
         std::vector<std::vector<int>> out;
 
@@ -185,11 +185,11 @@ struct fptree
             // auto node = (*(fptree.root->child.begin()));
             // while(node)
             // {
-            //     int object = node->id; 
-            //     int freq = node->freq ; 
+            //     int object = node->id;
+            //     int freq = node->freq ;
             //     int cur_
             // }
-            return {}; 
+            return {};
         }
         else
         {
@@ -201,12 +201,15 @@ struct fptree
 
                     out.push_back({object.first});
                     fptree conditional_fpt = create_conditionalFPT(object.first, FPT, support);
-                    std::vector<std::vector<int>> temp_out = pattern_mining(conditional_fpt, support);
+                    std::vector<std::vector<int>> temp_out = pattern_mining(conditional_fpt, support, freq);
                     for (std::vector<int> &v : temp_out)
                     {
                         if (v.size() == 0)
                             continue;
                         v.push_back(object.first);
+                        std::sort(v.begin(), v.end(), [&freq](int a, int b)
+                                  { return freq[a] > freq[b]; });
+                                  
                         out.push_back(v);
                     }
                 }

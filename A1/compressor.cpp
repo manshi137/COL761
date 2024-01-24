@@ -5,7 +5,7 @@
 #include <utility>
 #include <set> 
 #include <algorithm>
-#include "fptree.cpp"
+#include "fptree_new.cpp"
 #include <sstream>
 using namespace std;
 
@@ -32,16 +32,16 @@ vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
     ans.push_back(key);
     return ans;
 }
-
-void compress_transactions(vector<vector<int> >& transactions){
-    vector<float> support_values = {0.2, 0.1};
+ 
+void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , int numtransactions){
+    vector<int> support_values = {(int)(0.8*numtransactions)};
     int key = -1;
 
     vector<vector<int> > compressed_transactions = transactions;
-    for(float support: support_values){
+    for(int support: support_values){
         fptree fpt;
-        fpt.init(compressed_transactions, support);
-        vector<vector<int> >frequent_patterns = fpt.pattern_mining(fpt, support);
+        fpt.init(compressed_transactions, support , freq);
+        vector<vector<int> >frequent_patterns = fpt.pattern_mining(fpt, support, freq );
 
 
         vector<vector<int> > tmp_transactions;
