@@ -56,7 +56,7 @@ struct fptree
                 }
             }
             sort(tmp_trs.begin(), tmp_trs.end(), [&freq](int a, int b)
-                 { return freq[a] > freq[b]; });
+                 { if(freq[a] == freq[b] ) return a<b; return freq[a] > freq[b]; });
             auto curr_node = root;
             for (int object : tmp_trs)
             {
@@ -106,7 +106,7 @@ struct fptree
             }
             int freq_obj = trs.second;
             sort(tmp_trs.begin(), tmp_trs.end(), [&freq](int a, int b)
-                 { return freq[a] > freq[b]; });
+                 {if(freq[a] == freq[b] ) return a<b; return freq[a] > freq[b]; });
             auto curr_node = root;
             for (int object : tmp_trs)
             {
@@ -208,8 +208,8 @@ struct fptree
                             continue;
                         v.push_back(object.first);
                         std::sort(v.begin(), v.end(), [&freq](int a, int b)
-                                  { return freq[a] > freq[b]; });
-                                  
+                                  { if(freq[a] == freq[b] ) return a<b; return freq[a] > freq[b]; });
+
                         out.push_back(v);
                     }
                 }
