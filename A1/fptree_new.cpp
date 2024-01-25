@@ -10,6 +10,19 @@
 using namespace std;
 
 
+
+bool isSubset(const std::vector<int>& subset, const std::vector<int>& superset) {
+    for (int element : subset) {
+        if (std::find(superset.begin(), superset.end(), element) == superset.end()) {
+            // Element from the subset not found in the superset
+            return false;
+        }
+    }
+    return true;
+}
+
+
+
 typedef std::vector<std::vector<int>> Transactions;
 typedef std::vector<std::pair<std::vector<int>, int>> TransactionsPair;
 struct node
@@ -42,7 +55,7 @@ struct fptree
     }
     bool single_p(fptree &fptree)
     {
-        return root->child.empty() || single_p(fptree.root);
+        return root->child.empty(); // || single_p(fptree.root);
     }
     void init(Transactions &transactions, int support, std::unordered_map<int, int> &freq)
     {
@@ -177,21 +190,27 @@ struct fptree
         return cond_fpt;
     }
 
+
     std::vector<pair<std::vector<int>, int>> pattern_mining(fptree FPT, int support, std::unordered_map<int, int> &freq, int n = 1)
     {
         std::vector<pair<std::vector<int>, int>> out;
 
         if (single_p(FPT))
         {
+            
+            if(FPT.root->child.empty())return{};
+            std::shared_ptr<node> curnode = (*(FPT.root->child.begin())).second;
+            out.push_back({{curnode->id},FPT.freq_table[curnode->id]});
 
-            // auto node = (*(fptree.root->child.begin()));
-            // while(node)
-            // {
-            //     int object = node->id;
-            //     int freq = node->freq ;
-            //     int cur_
-            // }
-            return {};
+            while(curnode->child.empty() == false)
+            {
+                curnode = (*(curnode->child.begin())).second ; 
+                std::vector<int>new_pat = out[out.size() - 1].first;
+                new_pat.push_back(curnode->id);
+                out.push_back({new_pat,FPT.freq_table[curnode->id]});
+            }
+
+            return out;
         }
         else
         {
@@ -209,7 +228,26 @@ struct fptree
                         if(n==1) 
                         {
                             v.second *= (v.first.size() + 1);
-                            // auto it = std::find_if(out.begin(), out.end(), v);
+                            // for(auto &it : out)
+                            // {
+                            //     if( v.first.size()==it.first.size() && isSubset(it.first,v.first))                               {
+                            //         if(v.second = it.second)
+                            //         {
+                            //             it.first = v.first;
+                            //         }
+                            //         else if(it.second - v.second < support)
+                            //         {
+                            //             it = v;
+                            //         }
+                            //         else
+                            //         {
+                            //             it.second = it.second - v.second;
+                            //         }
+                            //         n=0;
+                            //         break;
+                            //     }
+                            // }
+                            // if(n==0) continue;
                             auto it = std::find_if(out.begin(), out.end(), [&v](const auto& element) {
                                 return v.first == element.first;
                             });
