@@ -64,7 +64,7 @@ vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
 }
  
 void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , int numtransactions){
-    vector<float> support_values = {0.9,0.7,0.5,0.3,0.1,0.08,0.05,0.004,0.003};
+    vector<float> support_values = {0.9,0.7,0.5,0.3,0.1, 0.05};
     // vector<float> support_values = {0.9};
     int key = -1;
 
