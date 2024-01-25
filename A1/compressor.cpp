@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "fptree_new.cpp"
 #include <sstream>
+#include <chrono>
 using namespace std;
 
 // map<vector<int>, int > compress_map;
@@ -63,18 +64,25 @@ vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
 }
  
 void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , int numtransactions){
-    vector<int> support_values = {(int)(0.05*numtransactions)};
+    vector<float> support_values = {0.9,0.7,0.5,0.3,0.1,0.08,0.05,0.004,0.003,0.001};
     int key = -1;
 
-    vector<vector<int> > compressed_transactions = transactions;
-    for(int support: support_values){
+    // vector<vector<int> > compressed_transactions = transactions;
+    for(float sup: support_values){
+        int support = (int)(sup*numtransactions);
+        auto start_time = std::chrono::high_resolution_clock::now();
+
         fptree fpt;
-        fpt.init(compressed_transactions, support , freq);
+        fpt.init(transactions, support , freq);
         vector<pair<vector<int> , int>>frequent_patterns = fpt.pattern_mining(fpt, support, freq );
 
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        std::cout << "Time taken for mining: " << duration.count() << " milliseconds" << std::endl;
 
-        vector<vector<int> > tmp_transactions;
-        for(vector<int> trans: compressed_transactions){
+        cout << "mining done num patterns: " << frequent_patterns.size() << endl;
+        // vector<vector<int> > tmp_transactions;
+        for(vector<int> &trans: transactions){
             for(pair<vector<int>,int> pat: frequent_patterns){
                 vector<int> pattern = pat.first;
                 if(pattern.size()>=2 && isSubset(pattern, trans , freq)){
@@ -92,15 +100,15 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
                     
                 }
             }
-            tmp_transactions.push_back(trans);
+            // tmp_transactions.push_back(trans);
         }
 
-        compressed_transactions = tmp_transactions;
+        // transactions = tmp_transactions;
     }
     ofstream outfile;
     outfile.open ("compressed_transactions.txt");
     if(outfile.is_open()){
-        for(vector<int> trans: compressed_transactions){
+        for(vector<int> trans: transactions){
             for(int elem: trans)
             {
                 outfile<<elem<<" ";
