@@ -97,7 +97,7 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
             return 0.7*left.first.size() + 0.3*left.second > 0.7*right.first.size() + 0.3*right.second;
         });
 
-        vector<vector<int> > tmp_transactions;
+        // vector<vector<int> > tmp_transactions;
         for(int itrans=0; itrans< transactions.size(); itrans++){
             // take the first 5000 patterns sorted by size of pattern
             for(int ipattern=0; ipattern< min((int)frequent_patterns.size(), bound) ; ipattern++){
@@ -115,10 +115,10 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
                     }  
                 }
             }
-            tmp_transactions.push_back(transactions[itrans]);
+            // tmp_transactions.push_back(transactions[itrans]);
         }
 
-        transactions = tmp_transactions;
+        // transactions = tmp_transactions;
     }
     ofstream outfile;
     outfile.open ("compressed_transactions.txt");
