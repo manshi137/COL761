@@ -57,10 +57,10 @@ int main()
     cout<<"support = "<<tot_sup <<'\n' ;
     start_time = std::chrono::high_resolution_clock::now();
 
-    // fpt.init(dataset,(int)(support * num_transaction) , frequency );
-    // fpt.create_conditionalFPT(1 , fpt  , tot_sup);
-    // cout<<"mining started!"<<endl;
-    // std::vector<std::vector<int>> p = fpt.pattern_mining(fpt , tot_sup ,frequency);
+    fpt.init(dataset,(int)(support * num_transaction) , frequency );
+    fpt.create_conditionalFPT(1 , fpt  , tot_sup);
+    std::vector<std::vector<int>> p = fpt.pattern_mining(fpt , tot_sup ,frequency);
+    std::cout<<"num patterns  = "<<p.size()<<std::endl;
     // for(std::vector<int> v: p)
     // {
     //     for(int i: v)
@@ -69,11 +69,11 @@ int main()
     //     }
     //     cout<<'\n';
     // }
-    cout << "compressing file \n";
+    // cout << "compressing file \n";
 
-    compress_transactions(dataset , frequency, num_transaction);
-    cout<<"decompressing file\n";
-    decompress_main("compressed_transactions.txt");
+    // compress_transactions(dataset , frequency, num_transaction);
+    // cout<<"decompressing file\n";
+    // decompress_main("compressed_transactions.txt");
     end_time = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     std::cout << "Time taken for function: " << duration.count() << " milliseconds" << std::endl;

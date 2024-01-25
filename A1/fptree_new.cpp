@@ -181,15 +181,20 @@ struct fptree
 
         if (single_p(FPT))
         {
+            
+            if(FPT.root->child.empty())return{};
+            std::shared_ptr<node> curnode = (*(FPT.root->child.begin())).second;
+            out.push_back({curnode->id});
 
-            // auto node = (*(fptree.root->child.begin()));
-            // while(node)
-            // {
-            //     int object = node->id;
-            //     int freq = node->freq ;
-            //     int cur_
-            // }
-            return {};
+            while(curnode->child.empty() == false)
+            {
+                std::vector<int>new_pat = out[out.size() - 1];
+                new_pat.push_back(curnode->id);
+                out.push_back(new_pat);
+                curnode = (*(curnode->child.begin())).second ; 
+            }
+
+            return out;
         }
         else
         {
@@ -210,7 +215,7 @@ struct fptree
                         std::sort(v.begin(), v.end(), [&freq](int a, int b)
                                   { if(freq[a] == freq[b] ) return a<b; return freq[a] > freq[b]; });
 
-                        out.push_back(v);
+                         out.push_back(v);
                     }
                 }
             }
