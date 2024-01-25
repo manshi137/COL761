@@ -85,9 +85,10 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
         if(frequent_patterns.size()< 0.0001*numtransactions){
             continue; //skip this support value
         }
-        // sort frequent patterns according to size of frequent_patterns[i].first
+        // sort frequent patterns according to size of frequent_patterns[i].first in decreasing order of size
+        
         sort(frequent_patterns.begin(), frequent_patterns.end(), [](const pair<vector<int>, int> &left, const pair<vector<int>, int> &right) {
-            return left.first.size() < right.first.size();
+            return left.first.size() > right.first.size();
         });
 
         vector<vector<int> > tmp_transactions;
