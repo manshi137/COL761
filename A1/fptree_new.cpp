@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <chrono>
 #include <memory>
+using namespace std;
+
 
 typedef std::vector<std::vector<int>> Transactions;
 typedef std::vector<std::pair<std::vector<int>, int>> TransactionsPair;
@@ -175,9 +177,9 @@ struct fptree
         return cond_fpt;
     }
 
-    std::vector<std::vector<int>> pattern_mining(fptree FPT, int support, std::unordered_map<int, int> &freq)
+    std::vector<pair<std::vector<int>, int>> pattern_mining(fptree FPT, int support, std::unordered_map<int, int> &freq, int n = 1)
     {
-        std::vector<std::vector<int>> out;
+        std::vector<pair<std::vector<int>, int>> out;
 
         if (single_p(FPT))
         {
@@ -199,15 +201,37 @@ struct fptree
                 if (FPT.freq_table[object.first] >= support)
                 {
 
-                    out.push_back({object.first});
+                    if(n!=1) out.push_back({{object.first} , FPT.freq_table[object.first]});
                     fptree conditional_fpt = create_conditionalFPT(object.first, FPT, support);
-                    std::vector<std::vector<int>> temp_out = pattern_mining(conditional_fpt, support, freq);
-                    for (std::vector<int> &v : temp_out)
+                    std::vector<pair<std::vector<int>, int>> temp_out = pattern_mining(conditional_fpt, support, freq, 0);
+                    for (auto &v : temp_out)
                     {
-                        if (v.size() == 0)
-                            continue;
-                        v.push_back(object.first);
-                        std::sort(v.begin(), v.end(), [&freq](int a, int b)
+                        if(n==1) 
+                        {
+                            v.second *= (v.first.size() + 1);
+                            // auto it = std::find_if(out.begin(), out.end(), v);
+                            auto it = std::find_if(out.begin(), out.end(), [&v](const auto& element) {
+                                return v.first == element.first;
+                            });
+                            if(it != out.end())
+                            {
+                                if(v.second = it->second)
+                                {
+                                    it->first = v.first;
+                                }
+                                else if(it->second - v.second < support)
+                                {
+                                    *it = v;
+                                }
+                                else
+                                {
+                                    it->second = it->second - v.second;
+                                }
+                                continue;
+                            }
+                        }
+                        v.first.push_back(object.first);
+                        std::sort(v.first.begin(), v.first.end(), [&freq](int a, int b)
                                   { if(freq[a] == freq[b] ) return a<b; return freq[a] > freq[b]; });
 
                         out.push_back(v);

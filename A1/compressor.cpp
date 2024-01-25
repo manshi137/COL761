@@ -63,19 +63,20 @@ vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
 }
  
 void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , int numtransactions){
-    vector<int> support_values = {(int)(0.6*numtransactions)};
+    vector<int> support_values = {(int)(0.05*numtransactions)};
     int key = -1;
 
     vector<vector<int> > compressed_transactions = transactions;
     for(int support: support_values){
         fptree fpt;
         fpt.init(compressed_transactions, support , freq);
-        vector<vector<int> >frequent_patterns = fpt.pattern_mining(fpt, support, freq );
+        vector<pair<vector<int> , int>>frequent_patterns = fpt.pattern_mining(fpt, support, freq );
 
 
         vector<vector<int> > tmp_transactions;
         for(vector<int> trans: compressed_transactions){
-            for(vector<int> pattern: frequent_patterns){
+            for(pair<vector<int>,int> pat: frequent_patterns){
+                vector<int> pattern = pat.first;
                 if(pattern.size()>=2 && isSubset(pattern, trans , freq)){
                     if(compress_set.find(pattern)==compress_set.end()){// new pattern
                         decompress_map[key] = pattern;
