@@ -224,7 +224,7 @@ struct fptree
                     if(n!=1) out.push_back({{object.first} , FPT.freq_table[object.first]});
                     fptree conditional_fpt = create_conditionalFPT(object.first, FPT, support);
                     std::vector<pair<std::vector<int>, int>> temp_out = pattern_mining(conditional_fpt, support, freq, 0);
-                    for (auto &v : temp_out)
+                    for (pair<std::vector<int>, int> &v : temp_out)
                     {
                         if(n==1) 
                         {
@@ -249,7 +249,7 @@ struct fptree
                             //     }
                             // }
                             // if(n==0) continue;
-                            auto it = std::find_if(out.begin(), out.end(), [&v](const auto& element) {
+                            auto it = std::find_if(out.begin(), out.end(), [&v](const pair<std::vector<int>, int>& element) {
                                 return v.first == element.first;
                             });
                             if(it != out.end())

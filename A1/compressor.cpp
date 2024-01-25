@@ -64,7 +64,7 @@ vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
 }
  
 void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , int numtransactions){
-    vector<float> support_values = {0.9,0.7,0.5,0.3,0.1,0.08,0.05,0.004,0.003,0.001};
+    vector<float> support_values = {0.9,0.7,0.5,0.3,0.1,0.08,0.05,0.004,0.003};
     int key = -1;
 
     // vector<vector<int> > compressed_transactions = transactions;
@@ -81,29 +81,38 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
         std::cout << "Time taken for mining: " << duration.count() << " milliseconds" << std::endl;
 
         cout << "mining done num patterns: " << frequent_patterns.size() << endl;
-        // vector<vector<int> > tmp_transactions;
-        for(vector<int> &trans: transactions){
-            for(pair<vector<int>,int> pat: frequent_patterns){
-                vector<int> pattern = pat.first;
-                if(pattern.size()>=2 && isSubset(pattern, trans , freq)){
+
+        if(frequent_patterns.size()< 0.0001*numtransactions){
+            continue; //skip this support value
+        }
+        // sort frequent patterns according to size of frequent_patterns[i].first
+        sort(frequent_patterns.begin(), frequent_patterns.end(), [](const pair<vector<int>, int> &left, const pair<vector<int>, int> &right) {
+            return left.first.size() < right.first.size();
+        });
+
+        vector<vector<int> > tmp_transactions;
+        for(int itrans=0; itrans< transactions.size(); itrans++){
+            // take the first 5000 patterns sorted by size of pattern
+            for(int ipattern=0; ipattern< min((int)frequent_patterns.size(), 5000) ; ipattern++){
+                vector<int> pattern = frequent_patterns[ipattern].first;
+                if(pattern.size()>=2 && isSubset(pattern, transactions[itrans] , freq)){
                     if(compress_set.find(pattern)==compress_set.end()){// new pattern
                         decompress_map[key] = pattern;
                         compress_set[pattern] = key;
                         cnt += pattern.size() + 1;
-                    trans =  substitute_key(pattern, trans, key);
+                    transactions[itrans] =  substitute_key(pattern, transactions[itrans], key);
                         key--;
                     }
                     else{
-                    trans =  substitute_key(pattern, trans, compress_set[pattern]);
-                        
+                    transactions[itrans] =  substitute_key(pattern, transactions[itrans], compress_set[pattern]);
                     }
                     
                 }
             }
-            // tmp_transactions.push_back(trans);
+            tmp_transactions.push_back(transactions[itrans]);
         }
 
-        // transactions = tmp_transactions;
+        transactions = tmp_transactions;
     }
     ofstream outfile;
     outfile.open ("compressed_transactions.txt");
