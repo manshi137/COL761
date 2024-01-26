@@ -7,11 +7,12 @@
 #include <algorithm>
 #include <sstream>
 #include <chrono>
+#include <functional>
 using namespace std;
 
-void decompress_main(string filepath){
+void decompress_main(string filepath , string output){
     ofstream outfile;
-    outfile.open ("decompressed_transactions.txt");
+    outfile.open (output);
 
     std::ifstream inputFile(filepath);
     if (!inputFile.is_open()) {
@@ -78,3 +79,16 @@ void decompress_main(string filepath){
 
 }
 
+
+int main(int argc, char* argv[])
+{
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <input_argument>" << std::endl;
+        return 1;
+    }
+    cout<<"Decompression starting.. \n";
+    string compressed_file , output ; 
+    compressed_file = argv[1];
+    output = argv[2];
+    decompress_main(compressed_file , output);
+}

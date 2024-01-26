@@ -191,10 +191,19 @@ struct fptree
     }
 
 
-    std::vector<pair<std::vector<int>, int>> pattern_mining(fptree FPT, int support, std::map<int, int> &freq, int n = 1)
+    std::vector<pair<std::vector<int>, int>> pattern_mining(fptree FPT, int support, std::map<int, int> &freq, std::chrono::high_resolution_clock::time_point start_time, int n = 1)
     {
         std::vector<pair<std::vector<int>, int>> out;
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        uint64_t time_limit = 1000*60*9;
 
+        auto local_start_time = std::chrono::high_resolution_clock::now();
+
+        if(elapsed_time.count() > time_limit){
+            cout<<"Time limit exceeded in pattern mining\n";
+            return {};
+        }
         if (single_p(FPT))
         {
             
@@ -223,32 +232,12 @@ struct fptree
 
                     if(n!=1) out.push_back({{object.first} , FPT.freq_table[object.first]});
                     fptree conditional_fpt = create_conditionalFPT(object.first, FPT, support);
-                    std::vector<pair<std::vector<int>, int>> temp_out = pattern_mining(conditional_fpt, support, freq, 0);
+                    std::vector<pair<std::vector<int>, int>> temp_out = pattern_mining(conditional_fpt, support, freq, start_time, 0);
                     for (pair<std::vector<int>, int> &v : temp_out)
                     {
                         if(n==1) 
                         {
                             v.second *= (v.first.size() + 1);
-                            // for(auto &it : out)
-                            // {
-                            //     if( v.first.size()==it.first.size() && isSubset(it.first,v.first))                               {
-                            //         if(v.second == it.second)
-                            //         {
-                            //             it.first = v.first;
-                            //         }
-                            //         else if(it.second - v.second < support)
-                            //         {
-                            //             it = v;
-                            //         }
-                            //         else
-                            //         {
-                            //             it.second = it.second - v.second;
-                            //         }
-                            //         n=0;
-                            //         break;
-                            //     }
-                            // }
-                            // if(n==0) continue;
                             auto it = std::find_if(out.begin(), out.end(), [&v](const pair<std::vector<int>, int>& element) {
                                 return v.first == element.first;
                             });

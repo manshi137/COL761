@@ -4,7 +4,7 @@
 #include <fstream>
 // #include "fptree_new.cpp"
 #include "compressor.cpp"
-#include "decompressor.cpp"
+// #include "decompressor.cpp"
 using namespace std;
 void c_p_c()
 {
@@ -12,14 +12,19 @@ void c_p_c()
     cin.tie(0);
     cout.tie(0);
 }
-int main()
+int main(int argc, char* argv[])
 {
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <input_argument>" << std::endl;
+        return 1;
+    }
+
     // c_p_c();
     std::vector<std::vector<int>> dataset;
     std::string line;
-    std::ifstream inputFile("D_small.dat");
+    std::ifstream inputFile(argv[1]);
     if (!inputFile.is_open()) {
-        std::cerr << "Error: Unable to open the file." << std::endl;
+        std::cerr << "Error: Unable to open the input file." << std::endl;
         return 1;
     }
     int ctint = 0 ; 
@@ -50,32 +55,12 @@ int main()
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     std::cout << "Time taken input: " << duration.count() << " milliseconds" << std::endl;
         
-    fptree fpt;
-    float support = 0.5 ; 
-    uint64_t tot_sup = support * num_transaction ;
-    cout<<"support , tot_transactions = "<<support<<" "<<num_transaction<<"\n";
-    cout<<"support = "<<tot_sup <<'\n' ;
     start_time = std::chrono::high_resolution_clock::now();
+    cout << "Compression starting... \n";
 
-    // fpt.init(dataset,(int)(support * num_transaction) , frequency );
-    // fpt.create_conditionalFPT(1 , fpt  , tot_sup);
-    // cout<<"mining started!"<<endl;
-    // std::vector<std::vector<int>> p = fpt.pattern_mining(fpt , tot_sup ,frequency);
-    // for(std::vector<int> v: p)
-    // {
-    //     for(int i: v)
-    //     {
-    //         cout<<i<<" ";
-    //     }
-    //     cout<<'\n';
-    // }
-    cout << "compressing file \n";
-
-    int cnt = compress_transactions(dataset , frequency, num_transaction);
-    cout<<"initial num ints = "<<ctint<<endl;
-    cout << "compression amt = " << 1 - (float)cnt/(float)ctint << endl;
-    cout<<"decompressing file\n";
-    decompress_main("compressed_transactions.txt");
+    int cnt = compress_transactions(dataset , frequency, num_transaction, argv[2]);
+    cout<<"Initial number of ints = "<<ctint<<endl;
+    cout << "Compression  = " << 1 - (float)cnt/(float)ctint << endl;
     end_time = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     std::cout << "Time taken for function: " << duration.count() << " milliseconds" << std::endl;
