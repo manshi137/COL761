@@ -36,10 +36,10 @@ void find_error(string file1, string file2){
     ll num = transactions1.size();
 
     for(ll i = 0;i<num;i++){
-        auto tr1 = transactions1[i];
-        auto tr2 = transactions2[i];
-        // set<ll> tr1(trans1.begin(),trans1.end());
-        // set<ll> tr2(trans2.begin(),trans2.end());
+        auto trans1 = transactions1[i];
+        auto trans2 = transactions2[i];
+        set<ll> tr1(trans1.begin(),trans1.end());
+        set<ll> tr2(trans2.begin(),trans2.end());
         vector<ll> transaction1(tr1.begin(),tr1.end());
         vector<ll> transaction2(tr2.begin(),tr2.end());
         if(tr1.size() != tr2.size()){

@@ -57,11 +57,11 @@ bool isSubset(const std::set<int>& sub, const std::set<int>& sup , map<int , int
 }
 vector<int> substitute_key(set<int>& pattern, set<int>& trans, int& key){
     // vector<int> ans;
-    for(int elem: trans){
+    for(int elem: pattern){
         //if elem is not found in pattern, push it in ans vector
         trans.erase(elem);   
     }
-    // ans.push_back(key);
+    trans.insert(key);
     // return ans;
     return vector<int>(trans.begin(),trans.end());
 }
@@ -111,10 +111,11 @@ int compress_transactions(vector<vector<int> >& transactions , map<int,int> &fre
             return 0.1*left.first.size() + 0.9*left.second > 0.1*right.first.size() + 0.9*right.second;
         });
         vector<int> pattern;
-
+        // vector<set<int>> freq_pat_set;
         for(int ipattern=0; ipattern< min((int)frequent_patterns.size(), bound) ; ipattern++){
             pattern = frequent_patterns[ipattern].first;
-            
+            // set<int>sub(pattern.begin() , pattern.end()); 
+            // freq_pat_set.push_back(sub);
             if(compress_set.find(pattern)==compress_set.end()){// new pattern
                 // decompress_map[key] = pattern;
                 compress_set[pattern] = key;
@@ -122,6 +123,7 @@ int compress_transactions(vector<vector<int> >& transactions , map<int,int> &fre
                 key--;
             }
             else{
+                cout << "errorfp ";
                 frequent_patterns.erase(frequent_patterns.begin()+ipattern);
                 ipattern-=1;
             }
@@ -131,10 +133,11 @@ int compress_transactions(vector<vector<int> >& transactions , map<int,int> &fre
         // vector<vector<int> > tmp_transactions;
         for(int itrans=0; itrans< transactions.size(); itrans++){
             // take the first 5000 patterns sorted by size of pattern
-            for(int ipattern=0; ipattern< min((int)frequent_patterns.size(), bound) ; ipattern++){
-                pattern = frequent_patterns[ipattern].first;
+            set<int>sup(transactions[itrans].begin(), transactions[itrans].end());
+            for(auto ipattern : frequent_patterns){
+                pattern = ipattern.first;
                 set<int>sub(pattern.begin() , pattern.end()); 
-                set<int>sup(transactions[itrans].begin(), transactions[itrans].end());
+
                 if(isSubset(sub, sup , freq)){
                     // if(compress_set.find(pattern)==compress_set.end()){// new pattern
                     //     decompress_map[key] = pattern;
