@@ -17,7 +17,7 @@ int main()
     // c_p_c();
     std::vector<std::vector<int>> dataset;
     std::string line;
-    std::ifstream inputFile("D_medium.dat");
+    std::ifstream inputFile("D_medium2.dat");
     if (!inputFile.is_open()) {
         std::cerr << "Error: Unable to open the file." << std::endl;
         return 1;

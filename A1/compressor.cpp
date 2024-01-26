@@ -21,7 +21,11 @@ int compare (int a, int b , map<int , int >&freq)
     else if(freq[a] == freq[b] && a < b) return 0; 
     else return -1;
 }
-bool isSubset(const std::vector<int>& subset, const std::vector<int>& superset , map<int , int> &freq ) {
+bool isSubset(const std::set<int>& sub, const std::set<int>& sup , map<int , int> &freq ) {
+
+    // set<int>sub(subset.begin() , subset.end()); 
+    // set<int>sup(superset.begin(), superset.end());
+    return includes(sup.begin() , sup.end() , sub.begin() , sub.end()); 
     // int i = 0 ;
     // int j= 0 ;
     // while(i < superset.size() && j < subset.size())
@@ -43,24 +47,23 @@ bool isSubset(const std::vector<int>& subset, const std::vector<int>& superset ,
     // }
     // if(j == subset.size())return true; 
     // else return false ;
-    for (int element : subset) {
-        if (std::find(superset.begin(), superset.end(), element) == superset.end()) {
-            // Element from the subset not found in the superset
-            return false;
-        }
-    }
-    return true;
+    // for (int element : subset) {
+    //     if (std::find(superset.begin(), superset.end(), element) == superset.end()) {
+    //         // Element from the subset not found in the superset
+    //         return false;
+    //     }
+    // }
+    // return true;
 }
-vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
-    vector<int> ans;
+vector<int> substitute_key(set<int>& pattern, set<int>& trans, int& key){
+    // vector<int> ans;
     for(int elem: trans){
         //if elem is not found in pattern, push it in ans vector
-        if(find(pattern.begin(), pattern.end(), elem) == pattern.end()){// elem not found in pattern
-            ans.push_back(elem);
-        }   
+        trans.erase(elem);   
     }
-    ans.push_back(key);
-    return ans;
+    // ans.push_back(key);
+    // return ans;
+    return vector<int>(trans.begin(),trans.end());
 }
  
 int compress_transactions(vector<vector<int> >& transactions , map<int,int> &freq , uint64_t numtransactions){
@@ -130,7 +133,9 @@ int compress_transactions(vector<vector<int> >& transactions , map<int,int> &fre
             // take the first 5000 patterns sorted by size of pattern
             for(int ipattern=0; ipattern< min((int)frequent_patterns.size(), bound) ; ipattern++){
                 pattern = frequent_patterns[ipattern].first;
-                if(isSubset(pattern, transactions[itrans] , freq)){
+                set<int>sub(pattern.begin() , pattern.end()); 
+                set<int>sup(transactions[itrans].begin(), transactions[itrans].end());
+                if(isSubset(sub, sup , freq)){
                     // if(compress_set.find(pattern)==compress_set.end()){// new pattern
                     //     decompress_map[key] = pattern;
                     //     compress_set[pattern] = key;
@@ -140,7 +145,7 @@ int compress_transactions(vector<vector<int> >& transactions , map<int,int> &fre
                     // }
                     // else
                     {
-                        transactions[itrans] =  substitute_key(pattern, transactions[itrans], compress_set[pattern]);
+                        transactions[itrans] =  substitute_key(sub, sup, compress_set[pattern]);
                     }  
                 }
             }
