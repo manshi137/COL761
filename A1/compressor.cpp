@@ -12,7 +12,7 @@ using namespace std;
 
 // map<vector<int>, int > compress_map;
 map<vector<int>, int > compress_set;
-int cnt = 0;
+uint64_t cnt = 0;
 map<int, vector<int> > decompress_map;
 int compare (int a, int b , unordered_map<int , int >&freq)
 {
@@ -63,61 +63,93 @@ vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
     return ans;
 }
  
-void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , int numtransactions){
-    vector<float> support_values = {0.9,0.7,0.5,0.3,0.1, 0.05};
-    // vector<float> support_values = {0.9};
+void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , uint64_t numtransactions){
+    
+    auto start_time = std::chrono::high_resolution_clock::now();
+    uint64_t time_limit = 60*1000*30 ;
+    // vector<float> support_values = {0.9, 0.7, 0.5, 0.4, 0.3, 0.2, 0.15, 0.1, 0.05, 0.03, 0.01, 0.009, 0.007, 0.005, 0.003, 0.002, 0.001};
     int key = -1;
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
+    vector<pair<vector<int> , int>>frequent_patterns ;
+    uint64_t support = (int)(0.9*numtransactions);
+    cout << "limiting support = " << (int)(0.001* numtransactions) <<endl;
     // vector<vector<int> > compressed_transactions = transactions;
-    for(float sup: support_values){
-        int support = (int)(sup*numtransactions);
-        auto start_time = std::chrono::high_resolution_clock::now();
-
+    while(support >= (int)(0.001* numtransactions)){
+        end_time = std::chrono::high_resolution_clock::now();
+        elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        cout<<"Support = "<<support<<"---------------"<<endl;
+        if(elapsed_time.count() > time_limit){
+            cout<<"Time limit exceeded for support = "<<endl;
+            break;
+        }
+        // uint64_t support = (uint64_t)(support_values[isup]*numtransactions);
         fptree fpt;
         fpt.init(transactions, support , freq);
-        vector<pair<vector<int> , int>>frequent_patterns = fpt.pattern_mining(fpt, support, freq );
+        frequent_patterns = fpt.pattern_mining(fpt, support, freq );
 
-        auto end_time = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-        std::cout << "Time taken for mining: " << duration.count() << " milliseconds" <<" support = "<<sup<< std::endl;
         cout<<"num patterns = "<<frequent_patterns.size()<<endl;
-        // cout<<"patterns "<<endl;
-        int threshold = 0;
+        std::cout << "Time taken for mining: " << elapsed_time.count() << " milliseconds" <<std::endl;
+        uint64_t threshold = 0;
         int bound = 10000;
         for(int i=0; i<frequent_patterns.size(); i++){
-            threshold += frequent_patterns[i].second*frequent_patterns[i].first.size();
+            threshold += frequent_patterns[i].second; //*frequent_patterns[i].first.size();
         }
 
         if(threshold < bound){
+            support = (int)(0.7*support);
+            cout<<"skipping this support value due to very few patterns"<<endl;
             continue; //skip this support value
         }
         // sort frequent patterns according to size of frequent_patterns[i].first in decreasing order of size
         
         sort(frequent_patterns.begin(), frequent_patterns.end(), [](const pair<vector<int>, int> &left, const pair<vector<int>, int> &right) {
-            return 0.7*left.first.size() + 0.3*left.second > 0.7*right.first.size() + 0.3*right.second;
+            return 0.1*left.first.size() + 0.9*left.second > 0.1*right.first.size() + 0.9*right.second;
         });
+        vector<int> pattern;
+
+        for(int ipattern=0; ipattern< min((int)frequent_patterns.size(), bound) ; ipattern++){
+            pattern = frequent_patterns[ipattern].first;
+            
+            if(compress_set.find(pattern)==compress_set.end()){// new pattern
+                decompress_map[key] = pattern;
+                compress_set[pattern] = key;
+                cnt += pattern.size() + 1;
+                key--;
+            }
+            else{
+                frequent_patterns.erase(frequent_patterns.begin()+ipattern);
+                ipattern-=1;
+            }
+            
+        }
 
         // vector<vector<int> > tmp_transactions;
         for(int itrans=0; itrans< transactions.size(); itrans++){
             // take the first 5000 patterns sorted by size of pattern
             for(int ipattern=0; ipattern< min((int)frequent_patterns.size(), bound) ; ipattern++){
-                vector<int> pattern = frequent_patterns[ipattern].first;
-                if(pattern.size()>=2 && isSubset(pattern, transactions[itrans] , freq)){
-                    if(compress_set.find(pattern)==compress_set.end()){// new pattern
-                        decompress_map[key] = pattern;
-                        compress_set[pattern] = key;
-                        cnt += pattern.size() + 1;
-                        transactions[itrans] =  substitute_key(pattern, transactions[itrans], key);
-                        key--;
-                    }
-                    else{
+                pattern = frequent_patterns[ipattern].first;
+                if(isSubset(pattern, transactions[itrans] , freq)){
+                    // if(compress_set.find(pattern)==compress_set.end()){// new pattern
+                    //     decompress_map[key] = pattern;
+                    //     compress_set[pattern] = key;
+                    //     cnt += pattern.size() + 1;
+                    //     transactions[itrans] =  substitute_key(pattern, transactions[itrans], key);
+                    //     key--;
+                    // }
+                    // else
+                    {
                         transactions[itrans] =  substitute_key(pattern, transactions[itrans], compress_set[pattern]);
                     }  
                 }
             }
             // tmp_transactions.push_back(transactions[itrans]);
         }
-
+        end_time = std::chrono::high_resolution_clock::now();
+        elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        std::cout << "Time taken for compressing: " << elapsed_time.count() << " milliseconds" <<std::endl;
+        support = (int)(0.8*support);
         // transactions = tmp_transactions;
     }
     ofstream outfile;

@@ -25,7 +25,7 @@ int main()
     auto start_time = std::chrono::high_resolution_clock::now();
 
     std::unordered_map<int , int > frequency ;
-    int num_transaction = 0 ; 
+    uint64_t num_transaction = 0 ; 
     while (std::getline(inputFile, line))
     {
         std::istringstream iss(line);
@@ -49,10 +49,9 @@ int main()
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     std::cout << "Time taken input: " << duration.count() << " milliseconds" << std::endl;
         
-    cout<<"num ints = "<<ctint<<endl;
     fptree fpt;
     float support = 0.5 ; 
-    int tot_sup = support * num_transaction ;
+    uint64_t tot_sup = support * num_transaction ;
     cout<<"support , tot_transactions = "<<support<<" "<<num_transaction<<"\n";
     cout<<"support = "<<tot_sup <<'\n' ;
     start_time = std::chrono::high_resolution_clock::now();
@@ -72,6 +71,7 @@ int main()
     cout << "compressing file \n";
 
     compress_transactions(dataset , frequency, num_transaction);
+    cout<<"initial num ints = "<<ctint<<endl;
     cout<<"decompressing file\n";
     decompress_main("compressed_transactions.txt");
     end_time = std::chrono::high_resolution_clock::now();
