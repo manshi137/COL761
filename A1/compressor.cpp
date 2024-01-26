@@ -108,7 +108,7 @@ int compress_transactions(vector<vector<int> >& transactions , map<int,int> &fre
         // sort frequent patterns according to size of frequent_patterns[i].first in decreasing order of size
         
         sort(frequent_patterns.begin(), frequent_patterns.end(), [](const pair<vector<int>, int> &left, const pair<vector<int>, int> &right) {
-            return 0.1*left.first.size() + 0.9*left.second > 0.1*right.first.size() + 0.9*right.second;
+            return left.second > right.second;
         });
         vector<int> pattern;
         // vector<set<int>> freq_pat_set;

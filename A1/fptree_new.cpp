@@ -270,8 +270,8 @@ struct fptree
                             }
                         }
                         v.first.push_back(object.first);
-                        std::sort(v.first.begin(), v.first.end(), [&freq](int a, int b)
-                                  { if(freq[a] == freq[b] ) return a<b; return freq[a] > freq[b]; });
+                        // std::sort(v.first.begin(), v.first.end(), [&freq](int a, int b)
+                        //           { if(freq[a] == freq[b] ) return a<b; return freq[a] > freq[b]; });
 
                         out.push_back(v);
                     }
