@@ -13,15 +13,15 @@ using namespace std;
 // map<vector<int>, int > compress_map;
 map<vector<int>, int > compress_set;
 uint64_t cnt = 0;
-map<int, vector<int> > decompress_map;
-int compare (int a, int b , unordered_map<int , int >&freq)
+// map<int, vector<int> > decompress_map;
+int compare (int a, int b , map<int , int >&freq)
 {
     if(a == b )return 1 ;
     else if(freq[a] > freq[b] )return 0 ;
     else if(freq[a] == freq[b] && a < b) return 0; 
     else return -1;
 }
-bool isSubset(const std::vector<int>& subset, const std::vector<int>& superset , unordered_map<int , int> &freq ) {
+bool isSubset(const std::vector<int>& subset, const std::vector<int>& superset , map<int , int> &freq ) {
     // int i = 0 ;
     // int j= 0 ;
     // while(i < superset.size() && j < subset.size())
@@ -63,7 +63,7 @@ vector<int> substitute_key(vector<int>& pattern, vector<int>& trans, int& key){
     return ans;
 }
  
-void compress_transactions(vector<vector<int> >& transactions , unordered_map<int,int> &freq , uint64_t numtransactions){
+int compress_transactions(vector<vector<int> >& transactions , map<int,int> &freq , uint64_t numtransactions){
     
     auto start_time = std::chrono::high_resolution_clock::now();
     uint64_t time_limit = 60*1000*30 ;
@@ -72,7 +72,7 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
-    vector<pair<vector<int> , int>>frequent_patterns ;
+    // vector<pair<vector<int> , int>>frequent_patterns ;
     uint64_t support = (int)(0.9*numtransactions);
     cout << "limiting support = " << (int)(0.001* numtransactions) <<endl;
     // vector<vector<int> > compressed_transactions = transactions;
@@ -87,7 +87,7 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
         // uint64_t support = (uint64_t)(support_values[isup]*numtransactions);
         fptree fpt;
         fpt.init(transactions, support , freq);
-        frequent_patterns = fpt.pattern_mining(fpt, support, freq );
+        vector<pair<vector<int> , int>> frequent_patterns = fpt.pattern_mining(fpt, support, freq );
 
         cout<<"num patterns = "<<frequent_patterns.size()<<endl;
         std::cout << "Time taken for mining: " << elapsed_time.count() << " milliseconds" <<std::endl;
@@ -113,7 +113,7 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
             pattern = frequent_patterns[ipattern].first;
             
             if(compress_set.find(pattern)==compress_set.end()){// new pattern
-                decompress_map[key] = pattern;
+                // decompress_map[key] = pattern;
                 compress_set[pattern] = key;
                 cnt += pattern.size() + 1;
                 key--;
@@ -155,6 +155,17 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
     ofstream outfile;
     outfile.open ("compressed_transactions.txt");
     if(outfile.is_open()){
+        outfile << compress_set.size()<< endl;
+        for(auto c_set: compress_set)
+        {
+            outfile << c_set.second << " ";
+            for(auto elem : c_set.first)
+            {
+                outfile << elem << " ";
+            }
+            outfile << "\n";
+        }
+
         for(vector<int> trans: transactions){
             for(int elem: trans)
             {
@@ -169,53 +180,5 @@ void compress_transactions(vector<vector<int> >& transactions , unordered_map<in
     
     }
     cout << "cnt after cmpression = "<< cnt << endl;
+    return cnt;
 }
-
-
-
-
-void decompress_main(string filepath){
-    ofstream outfile;
-    outfile.open ("decompressed_transactions.txt");
-
-    std::ifstream inputFile(filepath);
-    if (!inputFile.is_open()) {
-        std::cerr << "Error: Unable to open the compressed file." << std::endl;
-        // return 1;
-    }
-
-    function<void(int)> decompress_help=[&](int elem){
-        for(int elemmp: decompress_map[elem]){
-            if(elemmp<0){
-                decompress_help(elemmp);
-            }
-            else{
-                outfile<<elemmp<<" ";
-            }
-        }
-    };
-    string line;
-    while (getline(inputFile, line))
-    {
-        std::istringstream iss(line);
-        std::vector<int> array;
-
-        // Read elements from the current line
-        int element;
-        while (iss >> element)
-        {
-            if(element<0){
-                decompress_help(element);
-            }
-            else{
-                outfile<<element<<" ";
-            }
-        }
-        outfile<<'\n';
-
-
-
-    }
-
-}
-

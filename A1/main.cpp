@@ -4,6 +4,7 @@
 #include <fstream>
 // #include "fptree_new.cpp"
 #include "compressor.cpp"
+#include "decompressor.cpp"
 using namespace std;
 void c_p_c()
 {
@@ -16,7 +17,7 @@ int main()
     // c_p_c();
     std::vector<std::vector<int>> dataset;
     std::string line;
-    std::ifstream inputFile("D_medium2.dat");
+    std::ifstream inputFile("D_medium.dat");
     if (!inputFile.is_open()) {
         std::cerr << "Error: Unable to open the file." << std::endl;
         return 1;
@@ -24,7 +25,7 @@ int main()
     int ctint = 0 ; 
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    std::unordered_map<int , int > frequency ;
+    std::map<int , int > frequency ;
     uint64_t num_transaction = 0 ; 
     while (std::getline(inputFile, line))
     {
@@ -70,8 +71,9 @@ int main()
     // }
     cout << "compressing file \n";
 
-    compress_transactions(dataset , frequency, num_transaction);
+    int cnt = compress_transactions(dataset , frequency, num_transaction);
     cout<<"initial num ints = "<<ctint<<endl;
+    cout << "compression amt = " << 1 - (float)cnt/(float)ctint << endl;
     cout<<"decompressing file\n";
     decompress_main("compressed_transactions.txt");
     end_time = std::chrono::high_resolution_clock::now();

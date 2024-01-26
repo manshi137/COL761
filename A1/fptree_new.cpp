@@ -2,7 +2,7 @@
 #include <vector>
 #include <map>
 #include <utility>
-#include <unordered_map>
+#include <map>
 #include <set>
 #include <algorithm>
 #include <chrono>
@@ -32,17 +32,17 @@ struct node
     std::shared_ptr<node> parent;
 
     std::shared_ptr<node> next_node;                      // node of the same item.....linked list
-    std::unordered_map<int, std::shared_ptr<node>> child; // here int id the id of the child and corresponding point is node*
+    std::map<int, std::shared_ptr<node>> child; // here int id the id of the child and corresponding point is node*
 
     node(int id, int freq, std::shared_ptr<node> parent) : id(id), freq(freq), parent(parent), next_node(nullptr) {}
 };
 
-typedef std::unordered_map<int, std::pair<std::shared_ptr<node>, std::shared_ptr<node>>> NodeTable;
+typedef std::map<int, std::pair<std::shared_ptr<node>, std::shared_ptr<node>>> NodeTable;
 struct fptree
 {
     std::shared_ptr<node> root;
     NodeTable table; // this table will store the first and current last of particular item
-    std::unordered_map<int, int> freq_table;
+    std::map<int, int> freq_table;
 
     fptree() : root(new node(-1, 0, nullptr)) {} // Assuming -1 is a special value for the root node
     bool single_p(const std::shared_ptr<node> &node)
@@ -57,7 +57,7 @@ struct fptree
     {
         return root->child.empty(); // || single_p(fptree.root);
     }
-    void init(Transactions &transactions, int support, std::unordered_map<int, int> &freq)
+    void init(Transactions &transactions, int support, std::map<int, int> &freq)
     {
         for (std::vector<int> &trs : transactions)
         {
@@ -107,7 +107,7 @@ struct fptree
         }
     }
 
-    void init(TransactionsPair &transactions, int support, std::unordered_map<int, int> freq)
+    void init(TransactionsPair &transactions, int support, std::map<int, int> freq)
     {
         for (std::pair<std::vector<int>, int> &trs : transactions)
         {
@@ -161,7 +161,7 @@ struct fptree
     {
 
         std::shared_ptr<node> last_node = fpt.table[object].first;
-        std::unordered_map<int, int> freq_tab;
+        std::map<int, int> freq_tab;
         TransactionsPair cond_branches;
         while (last_node != nullptr)
         {
@@ -191,7 +191,7 @@ struct fptree
     }
 
 
-    std::vector<pair<std::vector<int>, int>> pattern_mining(fptree FPT, int support, std::unordered_map<int, int> &freq, int n = 1)
+    std::vector<pair<std::vector<int>, int>> pattern_mining(fptree FPT, int support, std::map<int, int> &freq, int n = 1)
     {
         std::vector<pair<std::vector<int>, int>> out;
 
