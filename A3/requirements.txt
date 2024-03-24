@@ -1,0 +1,6 @@
+FALCONN==1.3.1
+numpy==1.18.3
+pandas==0.25.0+0.gd1accd0.dirty
+scikit-learn==0.21.3
+scipy==1.3.1
+matplotlib==3.1.1
